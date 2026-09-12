@@ -1,6 +1,6 @@
 import 'package:coffee_appv2/core/themes/colors.dart';
-import 'package:coffee_appv2/widget/buildCategorycard.dart';
-import 'package:coffee_appv2/widget/productCard.dart';
+import 'package:coffee_appv2/widget/build_category_card.dart';
+import 'package:coffee_appv2/widget/product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -152,6 +152,8 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: AppColors.latteMist,
       appBar: AppBar(
         backgroundColor: AppColors.latteMist,
+        elevation: 0,
+        titleSpacing: 16,
         title: Text(
           'GOOD MORNING',
           style: GoogleFonts.plusJakartaSans(
@@ -164,37 +166,45 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             height: 40,
             width: 40,
-            margin: const EdgeInsets.all(4),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.mutedTaupe),
+              border: Border.all(
+                color: AppColors.mutedTaupe.withValues(alpha: 0.3),
+              ),
               borderRadius: BorderRadius.circular(50),
               color: Colors.white,
             ),
             child: const Icon(
               Icons.shopping_cart_checkout,
               color: AppColors.softAmber,
+              size: 20,
             ),
           ),
           Container(
             height: 40,
             width: 40,
-            margin: const EdgeInsets.all(4),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.mutedTaupe),
+              border: Border.all(
+                color: AppColors.mutedTaupe.withValues(alpha: 0.3),
+              ),
               borderRadius: BorderRadius.circular(50),
               color: Colors.white,
             ),
             child: const Icon(
               Icons.notification_add,
               color: AppColors.softAmber,
+              size: 20,
             ),
           ),
           Container(
-            height: 48,
-            width: 48,
-            margin: const EdgeInsets.all(4),
+            height: 40,
+            width: 40,
+            margin: const EdgeInsets.only(left: 4, right: 16),
             decoration: BoxDecoration(
-              border: Border.all(color: AppColors.mutedTaupe),
+              border: Border.all(
+                color: AppColors.mutedTaupe.withValues(alpha: 0.3),
+              ),
               borderRadius: BorderRadius.circular(50),
             ),
             child: const CircleAvatar(
@@ -208,10 +218,11 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 12),
               Text(
                 "What will\nyou sip today?",
                 style: GoogleFonts.playfairDisplay(
@@ -221,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: AppColors.deepEspresso,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Text(
                 "Welcome to KŌVÉRA, your sanctuary for premium coffee moments.",
                 style: GoogleFonts.plusJakartaSans(
@@ -230,21 +241,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: AppColors.mutedTaupe,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.mutedTaupe, width: 2),
-                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.borderLight, width: 1.5),
+                  borderRadius: BorderRadius.circular(14),
                   color: Colors.white,
                 ),
-                height: 48,
+                height: 50,
                 width: double.infinity,
                 child: TextField(
+                  textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                     prefixIcon: const Icon(
                       Icons.search,
                       color: AppColors.softAmber,
@@ -262,25 +275,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: AppColors.deepEspresso,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(18),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: AppColors.deepEspresso,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 12),
                           Container(
-                            padding: const EdgeInsets.all(5),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: AppColors.softAmber,
@@ -300,6 +313,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ),
+                          const SizedBox(height: 10),
                           Text(
                             "Caramel\nCloud Latte",
                             style: GoogleFonts.playfairDisplay(
@@ -326,11 +340,15 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: AppColors.burntCaramel,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 10),
                           ElevatedButton(
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.burntCaramel,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -346,21 +364,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-                      Container(
-                        height: 150,
-                        width: 150,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: const DecorationImage(
-                            image: NetworkImage(
-                              'https://i.pinimg.com/736x/f9/f7/24/f9f72413f4b29283d1d558ebfabd4d5b.jpg',
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                    ),
+                    const SizedBox(width: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.network(
+                        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSd3AKE2lB_47MhSljDZUr-3qFxaHkZ2fXC_9p9VUordZgUk2u-bQSx1MDg&s=10',
+                        height: 180,
+                        width: 140,
+                        fit: BoxFit.cover,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
@@ -389,11 +404,12 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 16),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
                 child: Row(
                   children: categories.map((cat) {
                     final isSelected = selectedCategory == cat["label"];
                     return Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
+                      padding: const EdgeInsets.only(right: 10.0),
                       child: Buildcategorycard(
                         icon: cat["icon"] as IconData,
                         label: cat["label"] as String,
@@ -408,9 +424,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   }).toList(),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
                 child: Row(
                   children: currentProducts.map((prod) {
                     return Padding(
@@ -426,6 +443,89 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 24),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [AppColors.deepEspresso, AppColors.burntCaramel],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.deepEspresso.withValues(alpha: 0.35),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.burntCaramel,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Text(
+                        "20% Off",
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.warmPorcelain,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      "Slow Mornings\ndeserves best coffee",
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 25,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.warmPorcelain,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Your First Order at Kovera ",
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.warmPorcelain,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.burntCaramel,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {},
+                      child: Text(
+                        "Order Now",
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.warmPorcelain,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
             ],
           ),
         ),
