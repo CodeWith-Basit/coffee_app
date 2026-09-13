@@ -1,0 +1,139 @@
+import 'package:coffee_appv2/core/themes/colors.dart';
+import 'package:coffee_appv2/widget/search_widget.dart';
+import 'package:coffee_appv2/widget/seasonal_card.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class ShopScreen extends StatelessWidget {
+  const ShopScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.latteMist,
+      appBar: AppBar(
+        backgroundColor: AppColors.latteMist,
+        title: Text(
+          'DISCOVER',
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.burntCaramel,
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Explore KOVERA",
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.darkBackground,
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: "Search",
+                  prefixIcon: const Icon(
+                    Icons.search,
+                    color: AppColors.burntCaramel,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Popular Searches",
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.darkBackground,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  SearchWidget(text: "Espresso"),
+                  const SizedBox(width: 10),
+                  SearchWidget(text: "Caramel Macchiato"),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  SearchWidget(text: "Espresso"),
+                  const SizedBox(width: 10),
+                  SearchWidget(text: "Caramel Macchiato"),
+                  const SizedBox(width: 10),
+                  SearchWidget(text: "Latte"),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Seasonal Edditions",
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.burntCaramel,
+                ),
+              ),
+              Text(
+                "Curated Collections",
+                style: GoogleFonts.plusJakartaSans(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.darkBackground,
+                ),
+              ),
+              const SizedBox(height: 10),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    SeasonalCard(
+                      imagePath:
+                          "https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=1037&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                      title: "Autumn Vibes",
+                      description: "Warm & Cozy",
+                    ),
+                    SeasonalCard(
+                      imagePath:
+                          "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?q=80&w=869&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                      title: "Autumn Vibes",
+                      description: "Warm & Cozy",
+                    ),
+                    SeasonalCard(
+                      imagePath:
+                          "https://images.unsplash.com/photo-1561478908-d067fe75a553?q=80&w=387&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                      title: "Autumn Vibes",
+                      description: "Warm & Cozy",
+                    ),
+                    SeasonalCard(
+                      imagePath:
+                          "https://images.unsplash.com/photo-1509785307050-d4066910ec1e?q=80&w=728&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                      title: "Autumn Vibes",
+                      description: "Warm & Cozy",
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

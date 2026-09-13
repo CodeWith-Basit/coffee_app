@@ -1,4 +1,5 @@
 import 'package:coffee_appv2/Screens/Home/home_screen.dart';
+import 'package:coffee_appv2/Screens/Shop/shop_Screen.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -44,7 +45,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       const HomeScreen(),
-      const Center(child: Text("Shop Screen")),
+      const ShopScreen(),
       const Center(child: Text("Explore Screen")),
       const Center(child: Text("Cart Screen")),
       const Center(child: Text("Profile Screen")),
