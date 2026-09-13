@@ -1,4 +1,5 @@
 import 'package:coffee_appv2/Screens/Home/home_screen.dart';
+import 'package:coffee_appv2/Screens/Explore/explore_screen.dart';
 import 'package:coffee_appv2/Screens/Shop/shop_Screen.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +19,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   final List<Map<String, dynamic>> _navItems = const [
     {"icon": Icons.home_rounded, "label": "Home"},
-    {"icon": Icons.storefront_rounded, "label": "Shop"},
     {"icon": Icons.explore_rounded, "label": "Explore"},
-    {"icon": Icons.local_mall_rounded, "label": "Cart"},
+    {"icon": Icons.storefront_rounded, "label": "Order"},
+    {"icon": Icons.favorite_rounded, "label": "Favorites"},
     {"icon": Icons.person_rounded, "label": "Profile"},
   ];
 
@@ -45,9 +46,9 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       const HomeScreen(),
+      const ExploreScreen(),
       const ShopScreen(),
-      const Center(child: Text("Explore Screen")),
-      const Center(child: Text("Cart Screen")),
+      const Center(child: Text("Favorites Screen")),
       const Center(child: Text("Profile Screen")),
     ];
 

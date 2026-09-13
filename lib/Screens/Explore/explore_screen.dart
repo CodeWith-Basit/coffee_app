@@ -1,14 +1,24 @@
+import 'package:coffee_appv2/core/data/app_data.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
+import 'package:coffee_appv2/widget/build_category_card.dart';
+import 'package:coffee_appv2/widget/product_card.dart';
 import 'package:coffee_appv2/widget/search_widget.dart';
 import 'package:coffee_appv2/widget/seasonal_card.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ShopScreen extends StatelessWidget {
-  const ShopScreen({super.key});
+class ExploreScreen extends StatefulWidget {
+  const ExploreScreen({super.key});
 
   @override
+  State<ExploreScreen> createState() => _ExploreScreenState();
+}
+
+class _ExploreScreenState extends State<ExploreScreen> {
+  String selectedCategory = "Coffee";
+  @override
   Widget build(BuildContext context) {
+    final currentProducts = AppData.productsByCategory[selectedCategory] ?? [];
     return Scaffold(
       backgroundColor: AppColors.latteMist,
       appBar: AppBar(
@@ -129,6 +139,48 @@ class ShopScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: AppData.categories.map((category) {
+                    final isActive = category["label"] == selectedCategory;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 10.0),
+                      child: Buildcategorycard(
+                        icon: category["icon"] as IconData,
+                        label: category["label"] as String,
+                        isActive: isActive,
+                        onTap: () {
+                          setState(() {
+                            selectedCategory = category["label"] as String;
+                          });
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.63,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 20,
+                ),
+                itemBuilder: (context, index) {
+                  return Productcard(
+                    imgurl: currentProducts[index]["imgurl"]!,
+                    title: currentProducts[index]["title"]!,
+                    subtitle: currentProducts[index]["subtitle"]!,
+                    price: currentProducts[index]["price"]!,
+                  );
+                },
+                itemCount: currentProducts.length,
               ),
             ],
           ),
