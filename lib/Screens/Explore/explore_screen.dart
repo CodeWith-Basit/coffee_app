@@ -1,4 +1,5 @@
 import 'package:coffee_appv2/core/data/app_data.dart';
+import 'package:coffee_appv2/core/services/cart_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:coffee_appv2/widget/build_category_card.dart';
 import 'package:coffee_appv2/widget/product_card.dart';
@@ -178,6 +179,32 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     title: currentProducts[index]["title"]!,
                     subtitle: currentProducts[index]["subtitle"]!,
                     price: currentProducts[index]["price"]!,
+                    onAddToCart: () {
+                      final parsedPrice =
+                          double.tryParse(currentProducts[index]["price"]!) ?? 0.0;
+                      final added = CartService.instance.addToCart(
+                        title: currentProducts[index]["title"]!,
+                        imgurl: currentProducts[index]["imgurl"]!,
+                        price: parsedPrice,
+                        subtitle: currentProducts[index]["subtitle"],
+                      );
+
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            added
+                                ? "Added ${currentProducts[index]['title']} to Order"
+                                : "${currentProducts[index]['title']} is already added in Order",
+                            style: GoogleFonts.plusJakartaSans(),
+                          ),
+                          backgroundColor: added
+                              ? AppColors.burntCaramel
+                              : AppColors.deepEspresso,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
                   );
                 },
                 itemCount: currentProducts.length,

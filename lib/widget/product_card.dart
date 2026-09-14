@@ -32,10 +32,7 @@ class Productcard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppColors.borderLight,
-            width: 1,
-          ),
+          border: Border.all(color: AppColors.borderLight, width: 1),
           boxShadow: const [
             BoxShadow(
               color: AppColors.shadowLight,
@@ -186,7 +183,7 @@ class Productcard extends StatelessWidget {
                 Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: onAddToCart ?? () {},
+                    onTap: onAddToCart,
                     borderRadius: BorderRadius.circular(12),
                     child: Ink(
                       padding: const EdgeInsets.symmetric(
@@ -198,7 +195,9 @@ class Productcard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.burntCaramel.withValues(alpha: 0.35),
+                            color: AppColors.burntCaramel.withValues(
+                              alpha: 0.35,
+                            ),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -207,11 +206,7 @@ class Productcard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 16,
-                          ),
+                          const Icon(Icons.add, color: Colors.white, size: 16),
                           const SizedBox(width: 2),
                           Text(
                             "Add",
