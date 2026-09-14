@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:coffee_appv2/Screens/Shop/shop_screen.dart';
 import 'package:coffee_appv2/core/data/app_data.dart';
 import 'package:coffee_appv2/core/services/cart_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
@@ -14,87 +17,148 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController _scrollController = ScrollController();
   String selectedCategory = "Coffee";
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final currentProducts = AppData.productsByCategory[selectedCategory] ?? [];
+    final topPadding = MediaQuery.of(context).padding.top;
+    const double kToolbarContentHeight = kToolbarHeight;
+    final double totalAppBarHeight = topPadding + kToolbarContentHeight;
 
     return Scaffold(
       backgroundColor: AppColors.latteMist,
-      appBar: AppBar(
-        backgroundColor: AppColors.latteMist,
-        elevation: 0,
-        titleSpacing: 16,
-        title: Text(
-          'GOOD MORNING',
-          style: GoogleFonts.plusJakartaSans(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.burntCaramel,
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: AnimatedBuilder(
+          animation: _scrollController,
+          builder: (context, child) {
+            final double offset = _scrollController.hasClients
+                ? _scrollController.offset
+                : 0.0;
+            // Clamped progress from 0.0 at offset 0 to 1.0 at offset 100+
+            final double progress = (offset / 100.0).clamp(0.0, 1.0);
+
+            // Opacity: from 0.0 (mostly transparent/natural blend) to 0.78 (subtle semi-transparent, not completely opaque)
+            final double bgOpacity = progress * 0.78;
+            // Blur sigma: from 0.0 to 14.0 (smooth BackdropFilter blur within 10-15 range)
+            final double blurSigma = progress * 14.0;
+            // Subtle bottom divider border opacity when scrolled
+            final double borderOpacity = progress * 0.12;
+
+            return ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.latteMist.withValues(alpha: bgOpacity),
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.mutedTaupe.withValues(
+                          alpha: borderOpacity,
+                        ),
+                        width: 0.5,
+                      ),
+                    ),
+                  ),
+                  child: child,
+                ),
+              ),
+            );
+          },
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            titleSpacing: 16,
+            title: Text(
+              'GOOD MORNING',
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.burntCaramel,
+              ),
+            ),
+            actions: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ShopScreen()),
+                  );
+                },
+                child: Container(
+                  height: 40,
+                  width: 40,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: AppColors.mutedTaupe.withValues(alpha: 0.3),
+                    ),
+                    borderRadius: BorderRadius.circular(50),
+                    color: Colors.white,
+                  ),
+                  child: const Icon(
+                    Icons.shopping_cart_checkout,
+                    color: AppColors.softAmber,
+                    size: 20,
+                  ),
+                ),
+              ),
+              Container(
+                height: 40,
+                width: 40,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppColors.mutedTaupe.withValues(alpha: 0.3),
+                  ),
+                  borderRadius: BorderRadius.circular(50),
+                  color: Colors.white,
+                ),
+                child: const Icon(
+                  Icons.notification_add,
+                  color: AppColors.softAmber,
+                  size: 20,
+                ),
+              ),
+              Container(
+                height: 40,
+                width: 40,
+                margin: const EdgeInsets.only(left: 4, right: 16),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppColors.mutedTaupe.withValues(alpha: 0.3),
+                  ),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: const CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0',
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-        actions: [
-          Container(
-            height: 40,
-            width: 40,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppColors.mutedTaupe.withValues(alpha: 0.3),
-              ),
-              borderRadius: BorderRadius.circular(50),
-              color: Colors.white,
-            ),
-            child: const Icon(
-              Icons.shopping_cart_checkout,
-              color: AppColors.softAmber,
-              size: 20,
-            ),
-          ),
-          Container(
-            height: 40,
-            width: 40,
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppColors.mutedTaupe.withValues(alpha: 0.3),
-              ),
-              borderRadius: BorderRadius.circular(50),
-              color: Colors.white,
-            ),
-            child: const Icon(
-              Icons.notification_add,
-              color: AppColors.softAmber,
-              size: 20,
-            ),
-          ),
-          Container(
-            height: 40,
-            width: 40,
-            margin: const EdgeInsets.only(left: 4, right: 16),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: AppColors.mutedTaupe.withValues(alpha: 0.3),
-              ),
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: const CircleAvatar(
-              backgroundImage: NetworkImage(
-                'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0',
-              ),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
+        controller: _scrollController,
         scrollDirection: Axis.vertical,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 12),
+              SizedBox(height: totalAppBarHeight + 12),
               Text(
                 "What will\nyou sip today?",
                 style: GoogleFonts.playfairDisplay(
@@ -310,7 +374,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         subtitle: prod["subtitle"]!,
                         price: prod["price"]!,
                         onAddToCart: () {
-                          final parsedPrice = double.tryParse(prod["price"]!) ?? 0.0;
+                          final parsedPrice =
+                              double.tryParse(prod["price"]!) ?? 0.0;
                           final added = CartService.instance.addToCart(
                             title: prod["title"]!,
                             imgurl: prod["imgurl"]!,
@@ -422,7 +487,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 90),
             ],
           ),
         ),

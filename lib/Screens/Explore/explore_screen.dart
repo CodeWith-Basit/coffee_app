@@ -209,6 +209,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 },
                 itemCount: currentProducts.length,
               ),
+              const SizedBox(height: 90),
             ],
           ),
         ),

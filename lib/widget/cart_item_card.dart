@@ -94,65 +94,90 @@ class CartItemCard extends StatelessWidget {
             ),
           ),
 
-          // Quantity controls
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.latteMist,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+          // Actions (Remove button & Quantity controls)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (onRemove != null)
                 GestureDetector(
-                  onTap: onDecrement,
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onRemove,
                   child: Container(
-                    padding: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.shadowLight,
-                          blurRadius: 4,
+                      color: AppColors.error.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      size: 18,
+                      color: AppColors.error,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 10),
+              // Quantity controls
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.latteMist,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: onDecrement,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.shadowLight,
+                              blurRadius: 4,
+                            ),
+                          ],
                         ),
-                      ],
+                        child: const Icon(
+                          Icons.remove,
+                          size: 14,
+                          color: AppColors.deepEspresso,
+                        ),
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.remove,
-                      size: 14,
-                      color: AppColors.deepEspresso,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(
+                        "${item.quantity}",
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.deepEspresso,
+                        ),
+                      ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: onIncrement,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: AppColors.burntCaramel,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(
-                    "${item.quantity}",
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.deepEspresso,
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: onIncrement,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.burntCaramel,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.add,
-                      size: 14,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:coffee_appv2/Screens/Favorite/favorite_screen.dart';
 import 'package:coffee_appv2/Screens/Home/home_screen.dart';
 import 'package:coffee_appv2/Screens/Explore/explore_screen.dart';
 import 'package:coffee_appv2/Screens/Shop/shop_Screen.dart';
@@ -48,7 +51,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
       const HomeScreen(),
       const ExploreScreen(),
       const ShopScreen(),
-      const Center(child: Text("Favorites Screen")),
+      const FavoriteScreen(),
       const Center(child: Text("Profile Screen")),
     ];
 
@@ -63,6 +66,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
       },
       child: Scaffold(
         backgroundColor: AppColors.latteMist,
+        extendBody: true,
         body: IndexedStack(index: activeTab, children: screens),
         bottomNavigationBar: Container(
           padding: const EdgeInsets.only(
@@ -72,83 +76,85 @@ class _BottomNavBarState extends State<BottomNavBar> {
             top: 6,
           ),
           color: Colors.transparent,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(28),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.shadowLight,
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
                 ),
-                BoxShadow(
-                  color: AppColors.burntCaramel.withValues(alpha: 0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-              border: Border.all(color: AppColors.borderLight, width: 1),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(_navItems.length, (index) {
-                final item = _navItems[index];
-                final bool isActive = activeTab == index;
-
-                return GestureDetector(
-                  onTap: () => changeTab(index),
-                  behavior: HitTestBehavior.opaque,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeOutCubic,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isActive ? 14 : 10,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isActive
-                          ? AppColors.burntCaramel
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: isActive
-                          ? [
-                              BoxShadow(
-                                color: AppColors.burntCaramel.withValues(
-                                  alpha: 0.35,
-                                ),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ]
-                          : null,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          item["icon"] as IconData,
-                          size: 22,
-                          color: isActive ? Colors.white : AppColors.mutedTaupe,
-                        ),
-                        if (isActive) ...[
-                          const SizedBox(width: 6),
-                          Text(
-                            item["label"] as String,
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.25),
+                    width: 1,
                   ),
-                );
-              }),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: List.generate(_navItems.length, (index) {
+                    final item = _navItems[index];
+                    final bool isActive = activeTab == index;
+
+                    return GestureDetector(
+                      onTap: () => changeTab(index),
+                      behavior: HitTestBehavior.opaque,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutCubic,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isActive ? 14 : 10,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? AppColors.burntCaramel
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: isActive
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.burntCaramel.withValues(
+                                      alpha: 0.35,
+                                    ),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              item["icon"] as IconData,
+                              size: 22,
+                              color: isActive
+                                  ? Colors.white
+                                  : AppColors.mutedTaupe,
+                            ),
+                            if (isActive) ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                item["label"] as String,
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
             ),
           ),
         ),

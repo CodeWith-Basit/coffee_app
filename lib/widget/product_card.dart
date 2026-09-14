@@ -1,4 +1,6 @@
+import 'package:coffee_appv2/core/services/favorite_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
+import 'package:coffee_appv2/models/favorite_item.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -105,18 +107,72 @@ class Productcard extends StatelessWidget {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Container(
-                    height: 28,
-                    width: 28,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.favorite_border_rounded,
-                      size: 16,
-                      color: AppColors.burntCaramel,
-                    ),
+                  child: ValueListenableBuilder<List<FavoriteItem>>(
+                    valueListenable: FavoriteService.instance.favoritesNotifier,
+                    builder: (context, favorites, _) {
+                      final isFav = favorites.any(
+                        (item) => item.title == title,
+                      );
+
+                      return GestureDetector(
+                        onTap: () {
+                          final added = FavoriteService.instance.toggleFavorite(
+                            title: title,
+                            imgurl: imgurl,
+                            subtitle: subtitle,
+                            price: price,
+                            rating: rating,
+                          );
+
+                          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                added
+                                    ? "Added $title to Favorites"
+                                    : "Removed $title from Favorites",
+                                style: GoogleFonts.plusJakartaSans(),
+                              ),
+                              backgroundColor: added
+                                  ? AppColors.burntCaramel
+                                  : AppColors.deepEspresso,
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                            color: isFav
+                                ? Colors.white
+                                : Colors.white.withValues(alpha: 0.85),
+                            shape: BoxShape.circle,
+                            boxShadow: isFav
+                                ? [
+                                    BoxShadow(
+                                      color: AppColors.burntCaramel.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: Icon(
+                            isFav
+                                ? Icons.favorite_rounded
+                                : Icons.favorite_border_rounded,
+                            size: 17,
+                            color: isFav
+                                ? const Color(0xFFD32F2F)
+                                : AppColors.burntCaramel,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
