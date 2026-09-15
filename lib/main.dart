@@ -1,4 +1,4 @@
-import 'package:coffee_appv2/widget/bottom_nav_bar.dart';
+import 'package:coffee_appv2/Screens/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BottomNavBar(),
+      home: SplashScreen(),
     );
   }
 }

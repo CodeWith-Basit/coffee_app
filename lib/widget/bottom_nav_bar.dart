@@ -2,7 +2,7 @@ import 'package:coffee_appv2/Screens/Favorite/favorite_screen.dart';
 import 'package:coffee_appv2/Screens/Home/home_screen.dart';
 import 'package:coffee_appv2/Screens/Explore/explore_screen.dart';
 import 'package:coffee_appv2/Screens/Profile/profile_screen.dart';
-import 'package:coffee_appv2/Screens/Shop/shop_Screen.dart';
+import 'package:coffee_appv2/Screens/Shop/shop_screen.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

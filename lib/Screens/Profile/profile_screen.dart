@@ -1,3 +1,4 @@
+import 'package:coffee_appv2/Screens/login/login_screen.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -197,9 +198,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           onPressed: () {
                             Navigator.pop(ctx);
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                              (route) => false,
+                            );
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text("Signed out successfully"),
+                                backgroundColor: AppColors.deepEspresso,
                               ),
                             );
                           },
@@ -538,7 +547,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            if (trailingWidget != null) trailingWidget,
+            ?trailingWidget,
             if (showArrow) ...[
               const SizedBox(width: 8),
               const Icon(
@@ -584,7 +593,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           Switch.adaptive(
             value: value,
-            activeColor: AppColors.burntCaramel,
+            activeTrackColor: AppColors.burntCaramel,
             onChanged: onChanged,
           ),
         ],
