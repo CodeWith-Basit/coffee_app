@@ -1,3 +1,5 @@
+import 'package:coffee_appv2/Screens/Checkout/checkout_screen.dart';
+import 'package:coffee_appv2/Screens/ProductDetail/product_detail_screen.dart';
 import 'package:coffee_appv2/core/services/cart_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:coffee_appv2/models/cart_item.dart';
@@ -84,6 +86,19 @@ class ShopScreen extends StatelessWidget {
                       onRemove: () {
                         CartService.instance.removeItem(index);
                       },
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProductDetailScreen(
+                              imgurl: item.imgurl,
+                              title: item.title,
+                              subtitle: item.subtitle ?? "Artisan Brew",
+                              price: item.price.toStringAsFixed(2),
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
@@ -135,16 +150,15 @@ class ShopScreen extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  "Order placed successfully! Total: \$${subtotal.toStringAsFixed(2)}",
-                                  style: GoogleFonts.plusJakartaSans(),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CheckoutScreen(
+                                  items: cartItems,
+                                  subtotal: subtotal,
                                 ),
-                                backgroundColor: AppColors.burntCaramel,
                               ),
                             );
-                            CartService.instance.clearCart();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.burntCaramel,

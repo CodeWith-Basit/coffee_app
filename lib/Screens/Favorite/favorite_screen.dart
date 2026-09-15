@@ -1,3 +1,4 @@
+import 'package:coffee_appv2/Screens/ProductDetail/product_detail_screen.dart';
 import 'package:coffee_appv2/core/services/cart_service.dart';
 import 'package:coffee_appv2/core/services/favorite_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
@@ -80,8 +81,23 @@ class FavoriteScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final item = favorites[index];
 
-              return Container(
-                padding: const EdgeInsets.all(12),
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailScreen(
+                        imgurl: item.imgurl,
+                        title: item.title,
+                        subtitle: item.subtitle,
+                        price: item.price,
+                        rating: item.rating,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -271,8 +287,9 @@ class FavoriteScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-              );
-            },
+              ),
+            );
+          },
           );
         },
       ),

@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 
 class SearchWidget extends StatelessWidget {
   final String text;
-  const SearchWidget({super.key, required this.text});
+  final VoidCallback? onTap;
+  const SearchWidget({super.key, required this.text, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: AppColors.latteMist,
@@ -28,6 +31,7 @@ class SearchWidget extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

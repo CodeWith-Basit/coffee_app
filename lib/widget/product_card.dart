@@ -10,6 +10,7 @@ class Productcard extends StatelessWidget {
   final String subtitle;
   final String price;
   final String rating;
+  final String? category;
   final VoidCallback? onTap;
   final VoidCallback? onAddToCart;
 
@@ -20,6 +21,7 @@ class Productcard extends StatelessWidget {
     required this.subtitle,
     required this.price,
     this.rating = "4.8",
+    this.category,
     this.onTap,
     this.onAddToCart,
   });

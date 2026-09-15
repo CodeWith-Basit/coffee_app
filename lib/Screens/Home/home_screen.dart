@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:coffee_appv2/Screens/ProductDetail/product_detail_screen.dart';
 import 'package:coffee_appv2/Screens/Shop/shop_screen.dart';
 import 'package:coffee_appv2/core/data/app_data.dart';
 import 'package:coffee_appv2/core/services/cart_service.dart';
@@ -198,13 +199,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       Icons.search,
                       color: AppColors.softAmber,
                     ),
-                    hintText: "Search caramel latte, cold brew...",
+                    hintText: "Search caramel latte, cold brew, cake...",
                     suffixIcon: const Icon(
                       Icons.filter_alt_outlined,
                       color: AppColors.softAmber,
                     ),
                     hintStyle: GoogleFonts.plusJakartaSans(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.w400,
                       color: AppColors.mutedTaupe,
                     ),
@@ -373,6 +374,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: prod["title"]!,
                         subtitle: prod["subtitle"]!,
                         price: prod["price"]!,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailScreen(
+                                imgurl: prod["imgurl"]!,
+                                title: prod["title"]!,
+                                subtitle: prod["subtitle"]!,
+                                price: prod["price"]!,
+                                category: selectedCategory,
+                              ),
+                            ),
+                          );
+                        },
                         onAddToCart: () {
                           final parsedPrice =
                               double.tryParse(prod["price"]!) ?? 0.0;
