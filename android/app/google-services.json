@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "666142223954",
+    "project_id": "kovera-coffee-app",
+    "storage_bucket": "kovera-coffee-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:666142223954:android:39f32e07d17d720e6e398b",
+        "android_client_info": {
+          "package_name": "com.example.coffee_appv2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "666142223954-po2q6hg3tvfrbtjed3b69f3n3ibrup2s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBTIK6K0GHu-ooCy0mUNGGpOydnVc78VU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "666142223954-po2q6hg3tvfrbtjed3b69f3n3ibrup2s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

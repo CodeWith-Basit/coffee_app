@@ -1,5 +1,7 @@
 import 'package:coffee_appv2/Screens/login/login_screen.dart';
+import 'package:coffee_appv2/core/services/auth_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -196,8 +198,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.pop(ctx);
+                            await AuthService.instance.signOut();
+                            if (!context.mounted) return;
                             Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
@@ -238,6 +242,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileHeader() {
+    final user = FirebaseAuth.instance.currentUser;
+    final displayName = user?.displayName?.isNotEmpty == true
+        ? user!.displayName!
+        : (user?.email?.split('@').first ?? "Coffee Lover");
+    final email = user?.email ?? "guest@kovera.coffee";
+    final photoUrl = user?.photoURL;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -262,13 +273,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               border: Border.all(color: AppColors.burntCaramel, width: 2),
               color: AppColors.latteMist,
             ),
-            child: const CircleAvatar(
+            child: CircleAvatar(
               backgroundColor: AppColors.latteMist,
-              child: Icon(
-                Icons.person_rounded,
-                size: 38,
-                color: AppColors.burntCaramel,
-              ),
+              backgroundImage:
+                  photoUrl != null ? NetworkImage(photoUrl) : null,
+              child: photoUrl == null
+                  ? const Icon(
+                      Icons.person_rounded,
+                      size: 38,
+                      color: AppColors.burntCaramel,
+                    )
+                  : null,
             ),
           ),
           const SizedBox(width: 16),
@@ -281,7 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Flexible(
                       child: Text(
-                        "Alex Thorne",
+                        displayName,
                         style: GoogleFonts.playfairDisplay(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -300,7 +315,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "alex.thorne@kovera.coffee",
+                  email,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 13,
                     color: AppColors.mutedTaupe,

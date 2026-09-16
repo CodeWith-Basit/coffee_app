@@ -1,6 +1,8 @@
 import 'package:coffee_appv2/Screens/login/signup_screen.dart';
+import 'package:coffee_appv2/core/services/auth_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:coffee_appv2/widget/bottom_nav_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -26,26 +28,72 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.plusJakartaSans(color: Colors.white),
+        ),
+        backgroundColor: AppColors.burntCaramel,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
   void _onLogin() async {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
-      // Simulate authenticating
-      await Future.delayed(const Duration(milliseconds: 700));
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+      try {
+        await AuthService.instance.signInWithEmail(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const BottomNavBar()),
-      );
+        if (!mounted) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomNavBar()),
+        );
+      } on FirebaseAuthException catch (e) {
+        String msg = "Login failed. Please check your credentials.";
+        if (e.code == 'user-not-found') {
+          msg = "No user found with this email.";
+        } else if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+          msg = "Incorrect password or email. Please try again.";
+        } else if (e.code == 'invalid-email') {
+          msg = "Invalid email format.";
+        } else if (e.code == 'user-disabled') {
+          msg = "This account has been disabled.";
+        }
+        _showError(msg);
+      } catch (e) {
+        _showError("An unexpected error occurred. Please try again.");
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
     }
   }
 
-  void _onGuestLogin() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const BottomNavBar()),
-    );
+  void _onGoogleLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final userCred = await AuthService.instance.signInWithGoogle();
+      if (userCred != null && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomNavBar()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      _showError(e.message ?? "Google Sign-In failed.");
+    } catch (e) {
+      _showError("Google Sign-In failed or was cancelled.");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -62,49 +110,27 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const SizedBox(height: 12),
 
-                // Top Bar with Guest Skip
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.deepEspresso,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
-                      child: Text(
-                        "K Ō V É R A",
-                        style: GoogleFonts.playfairDisplay(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 3,
-                          color: AppColors.warmPorcelain,
-                        ),
+                // Top Brand Badge
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.deepEspresso,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    child: Text(
+                      "K Ō V É R A",
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 3,
+                        color: AppColors.warmPorcelain,
                       ),
                     ),
-                    TextButton(
-                      onPressed: _onGuestLogin,
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.burntCaramel,
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Skip as Guest",
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.arrow_forward_ios_rounded, size: 12),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
 
                 const SizedBox(height: 36),
@@ -234,16 +260,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    TextButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Password reset link sent to your email.",
+                     TextButton(
+                      onPressed: () async {
+                        final email = _emailController.text.trim();
+                        if (email.isEmpty) {
+                          _showError("Please enter your email to reset password.");
+                          return;
+                        }
+                        final messenger = ScaffoldMessenger.of(context);
+                        try {
+                          await AuthService.instance.sendPasswordResetEmail(email);
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Password reset link sent to your email.",
+                              ),
+                              backgroundColor: AppColors.burntCaramel,
                             ),
-                            backgroundColor: AppColors.deepEspresso,
-                          ),
-                        );
+                          );
+                        } catch (e) {
+                          _showError("Could not send reset email. Verify your address.");
+                        }
                       },
                       style: TextButton.styleFrom(
                         padding: EdgeInsets.zero,
@@ -351,7 +388,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: "Google",
                         icon: Icons.g_mobiledata_rounded,
                         iconColor: Colors.redAccent,
-                        onTap: _onGuestLogin,
+                        onTap: _isLoading ? () {} : _onGoogleLogin,
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -360,7 +397,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: "Apple",
                         icon: Icons.apple,
                         iconColor: AppColors.deepEspresso,
-                        onTap: _onGuestLogin,
+                        onTap: () {
+                          _showError("Apple Sign-In is configured for iOS devices.");
+                        },
                       ),
                     ),
                   ],

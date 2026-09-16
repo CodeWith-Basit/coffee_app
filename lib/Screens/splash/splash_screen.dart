@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:coffee_appv2/Screens/onboarding/onboarding_screen.dart';
+import 'package:coffee_appv2/core/services/auth_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
+import 'package:coffee_appv2/widget/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -100,12 +102,17 @@ class _SplashScreenState extends State<SplashScreen>
         if (widget.onFinish != null) {
           widget.onFinish!();
         } else {
+          final currentUser = AuthService.instance.currentUser;
+          final Widget nextScreen = currentUser != null
+              ? const BottomNavBar()
+              : const OnboardingScreen();
+
           Navigator.pushReplacement(
             context,
             PageRouteBuilder(
               transitionDuration: const Duration(milliseconds: 700),
               pageBuilder: (context, animation, secondaryAnimation) =>
-                  const OnboardingScreen(),
+                  nextScreen,
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 return FadeTransition(opacity: animation, child: child);

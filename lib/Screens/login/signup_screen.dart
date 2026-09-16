@@ -1,5 +1,7 @@
+import 'package:coffee_appv2/core/services/auth_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:coffee_appv2/widget/bottom_nav_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -31,36 +33,85 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.plusJakartaSans(color: Colors.white),
+        ),
+        backgroundColor: AppColors.burntCaramel,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
   void _onSignUp() async {
     if (!_agreeTerms) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please accept the Terms & Privacy Policy"),
-          backgroundColor: AppColors.deepEspresso,
-        ),
-      );
+      _showError("Please accept the Terms & Privacy Policy");
       return;
     }
 
     if (_formKey.currentState?.validate() ?? false) {
       setState(() => _isLoading = true);
-      // Simulate registering user
-      await Future.delayed(const Duration(milliseconds: 750));
-      if (!mounted) return;
-      setState(() => _isLoading = false);
+      try {
+        await AuthService.instance.signUpWithEmail(
+          email: _emailController.text,
+          password: _passwordController.text,
+          name: _nameController.text,
+        );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Account created! Welcome to KŌVÉRA."),
-          backgroundColor: AppColors.burntCaramel,
-        ),
-      );
+        if (!mounted) return;
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const BottomNavBar()),
-        (route) => false,
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Account created! Welcome to KŌVÉRA."),
+            backgroundColor: AppColors.burntCaramel,
+          ),
+        );
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomNavBar()),
+          (route) => false,
+        );
+      } on FirebaseAuthException catch (e) {
+        String msg = "Registration failed. Please try again.";
+        if (e.code == 'email-already-in-use') {
+          msg = "An account already exists for this email.";
+        } else if (e.code == 'weak-password') {
+          msg = "Password is too weak. Must be at least 6 characters.";
+        } else if (e.code == 'invalid-email') {
+          msg = "Invalid email format.";
+        }
+        _showError(msg);
+      } catch (e) {
+        _showError("An unexpected error occurred. Please try again.");
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _onGoogleLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final userCred = await AuthService.instance.signInWithGoogle();
+      if (userCred != null && mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomNavBar()),
+          (route) => false,
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      _showError(e.message ?? "Google Sign-In failed.");
+    } catch (e) {
+      _showError("Google Sign-In failed or was cancelled.");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -351,7 +402,65 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 20),
+
+                // Divider: Or Continue With
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        color: AppColors.mutedTaupe.withValues(alpha: 0.3),
+                        thickness: 1,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: Text(
+                        "or sign up with",
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.mutedTaupe,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        color: AppColors.mutedTaupe.withValues(alpha: 0.3),
+                        thickness: 1,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 18),
+
+                // Social Sign-up Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildSocialButton(
+                        label: "Google",
+                        icon: Icons.g_mobiledata_rounded,
+                        iconColor: Colors.redAccent,
+                        onTap: _isLoading ? () {} : _onGoogleLogin,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: _buildSocialButton(
+                        label: "Apple",
+                        icon: Icons.apple,
+                        iconColor: AppColors.deepEspresso,
+                        onTap: () {
+                          _showError("Apple Sign-In is configured for iOS devices.");
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
 
                 // Already have an account? Sign In
                 Center(
@@ -438,6 +547,48 @@ class _SignupScreenState extends State<SignupScreen> {
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: AppColors.error, width: 1.8),
+      ),
+    );
+  }
+
+  Widget _buildSocialButton({
+    required String label,
+    required IconData icon,
+    required Color iconColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.borderLight, width: 1.2),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadowLight,
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: iconColor, size: 22),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.deepEspresso,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
