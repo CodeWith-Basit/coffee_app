@@ -120,6 +120,25 @@ class FavoriteScreen extends StatelessWidget {
                         height: 75,
                         width: 75,
                         fit: BoxFit.cover,
+                        cacheWidth: 250,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            height: 75,
+                            width: 75,
+                            color: AppColors.latteMist.withValues(alpha: 0.6),
+                            child: const Center(
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.burntCaramel,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                         errorBuilder: (context, error, stackTrace) => Container(
                           height: 75,
                           width: 75,

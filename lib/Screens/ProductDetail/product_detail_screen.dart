@@ -624,11 +624,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         : AppColors.borderLight,
                     width: 1.5,
                   ),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: AppColors.shadowLight,
                       blurRadius: 8,
-                      offset: const Offset(0, 3),
+                      offset: Offset(0, 3),
                     ),
                   ],
                 ),
@@ -704,11 +704,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ? AppColors.burntCaramel
                         : AppColors.borderLight,
                   ),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: AppColors.shadowLight,
                       blurRadius: 6,
-                      offset: const Offset(0, 2),
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),

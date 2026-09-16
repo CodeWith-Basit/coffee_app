@@ -88,22 +88,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              Row(
+              const Row(
                 children: [
                   SearchWidget(text: "Espresso"),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   SearchWidget(text: "Caramel"),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   SearchWidget(text: "Latte"),
                 ],
               ),
               const SizedBox(height: 8),
-              Row(
+              const Row(
                 children: [
                   SearchWidget(text: "Cheesecake"),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   SearchWidget(text: "Cookie"),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   SearchWidget(text: "Cold Brew"),
                 ],
               ),
@@ -125,7 +125,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              SingleChildScrollView(
+              const SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [

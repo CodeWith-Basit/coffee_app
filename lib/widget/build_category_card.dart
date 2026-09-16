@@ -35,10 +35,10 @@ class Buildcategorycard extends StatelessWidget {
                 offset: const Offset(0, 4),
               )
             else
-              BoxShadow(
+              const BoxShadow(
                 color: AppColors.shadowLight,
                 blurRadius: 8,
-                offset: const Offset(0, 2),
+                offset: Offset(0, 2),
               ),
           ],
         ),

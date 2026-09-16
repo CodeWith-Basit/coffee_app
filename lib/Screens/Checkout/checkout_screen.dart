@@ -3,6 +3,7 @@ import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:coffee_appv2/models/cart_item.dart';
 import 'package:coffee_appv2/widget/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CheckoutScreen extends StatefulWidget {
@@ -21,9 +22,34 @@ class CheckoutScreen extends StatefulWidget {
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
   int _selectedDeliveryMethod = 0; // 0: Pickup, 1: Delivery
-  int _selectedPaymentMethod = 0; // 0: Apple Pay, 1: Credit Card, 2: Cash
+  int _selectedPaymentMethod =
+      1; // 0: Apple Pay, 1: Credit / Debit Card, 2: Cash on Delivery
   String _selectedTip = "15%";
   bool _isPlacingOrder = false;
+
+  // Input Controllers for Address and Card details
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _pickupNoteController = TextEditingController();
+
+  final TextEditingController _cardNumberController = TextEditingController();
+  final TextEditingController _cardHolderController = TextEditingController();
+  final TextEditingController _expiryController = TextEditingController();
+  final TextEditingController _cvvController = TextEditingController();
+
+  bool _obscureCvv = true;
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    _cityController.dispose();
+    _pickupNoteController.dispose();
+    _cardNumberController.dispose();
+    _cardHolderController.dispose();
+    _expiryController.dispose();
+    _cvvController.dispose();
+    super.dispose();
+  }
 
   final double _deliveryFee = 2.50;
   final double _taxRate = 0.08;
@@ -47,7 +73,68 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return widget.subtotal + delivery + tax + _tipAmount;
   }
 
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.plusJakartaSans(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: AppColors.burntCaramel,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
   void _processCheckout() async {
+    // Basic validation for delivery address
+    if (_selectedDeliveryMethod == 1 &&
+        _addressController.text.trim().isEmpty) {
+      _showError("Please enter your delivery address.");
+      return;
+    }
+
+    // Strict validation and security limits for card payment
+    if (_selectedPaymentMethod == 1) {
+      final cardDigits =
+          _cardNumberController.text.replaceAll(RegExp(r'\s+'), '');
+      if (cardDigits.length < 16) {
+        _showError("Please enter a valid 16-digit card number.");
+        return;
+      }
+
+      final expiry = _expiryController.text.trim();
+      if (expiry.length != 5 || !expiry.contains('/')) {
+        _showError("Please enter a valid expiry date (MM/YY).");
+        return;
+      }
+
+      // Check month validity (01-12)
+      final parts = expiry.split('/');
+      final month = int.tryParse(parts[0]) ?? 0;
+      if (month < 1 || month > 12) {
+        _showError("Please enter a valid month (01-12).");
+        return;
+      }
+
+      final cvv = _cvvController.text.trim();
+      if (cvv.length != 3) {
+        _showError("CVV must be exactly 3 digits.");
+        return;
+      }
+
+      if (_cardHolderController.text.trim().isEmpty) {
+        _showError("Please enter the cardholder's name.");
+        return;
+      }
+    }
+
     setState(() => _isPlacingOrder = true);
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
@@ -368,11 +455,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: AppColors.warmPorcelain,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppColors.shadowLight,
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -443,138 +530,315 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: AppColors.warmPorcelain,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppColors.shadowLight,
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.burntCaramel.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              _selectedDeliveryMethod == 0
-                  ? Icons.store_rounded
-                  : Icons.location_on_rounded,
-              color: AppColors.burntCaramel,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _selectedDeliveryMethod == 0
-                      ? "KŌVÉRA Roastery & Flagship"
-                      : "442 Lexington Ave, Apt 5B",
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.deepEspresso,
-                  ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.burntCaramel.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 2),
-                Text(
+                child: Icon(
                   _selectedDeliveryMethod == 0
-                      ? "Est. pickup ready in 10-15 mins"
-                      : "New York, NY 10017 • Hand to me",
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 12,
-                    color: AppColors.mutedTaupe,
-                  ),
+                      ? Icons.storefront_rounded
+                      : Icons.location_on_rounded,
+                  color: AppColors.burntCaramel,
+                  size: 22,
                 ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: Text(
-              "Edit",
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppColors.burntCaramel,
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _selectedDeliveryMethod == 0
+                          ? "Pickup Instructions / Store"
+                          : "Delivery Address Details",
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.deepEspresso,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _selectedDeliveryMethod == 0
+                          ? "Type preferred store or pickup notes"
+                          : "Enter your custom delivery address",
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 12,
+                        color: AppColors.mutedTaupe,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 16),
+          if (_selectedDeliveryMethod == 1) ...[
+            // Delivery Address Input
+            _buildInputField(
+              controller: _addressController,
+              label: "Street Address, Apt / Suite",
+              hintText: "e.g. 742 Evergreen Terrace, Apt 4B",
+              icon: Icons.home_rounded,
+            ),
+            const SizedBox(height: 12),
+            _buildInputField(
+              controller: _cityController,
+              label: "City / Area & Postal Code",
+              hintText: "e.g. Brooklyn, NY 11201",
+              icon: Icons.map_rounded,
+            ),
+          ] else ...[
+            // Store Pickup Custom Note / Location Input
+            _buildInputField(
+              controller: _pickupNoteController,
+              label: "Pickup Location / Note",
+              hintText: "e.g. Downtown Flagship, hold until 5 PM",
+              icon: Icons.store_rounded,
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required String hintText,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
+    bool obscureText = false,
+    Widget? suffixIcon,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.plusJakartaSans(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppColors.deepEspresso,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.borderLight),
+          ),
+          child: TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            obscureText: obscureText,
+            inputFormatters: inputFormatters,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: AppColors.deepEspresso,
+            ),
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
+              hintText: hintText,
+              hintStyle: GoogleFonts.plusJakartaSans(
+                fontSize: 13,
+                color: AppColors.mutedTaupe.withValues(alpha: 0.8),
+              ),
+              prefixIcon: Icon(icon, size: 18, color: AppColors.burntCaramel),
+              suffixIcon: suffixIcon,
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildPaymentMethodsCard() {
     final methods = [
       {"icon": Icons.apple, "title": "Apple Pay"},
-      {"icon": Icons.credit_card_rounded, "title": "Visa •••• 4289"},
-      {"icon": Icons.money_rounded, "title": "Cash at Counter"},
+      {"icon": Icons.credit_card_rounded, "title": "Credit / Debit Card"},
+      {
+        "icon": Icons.money_rounded,
+        "title": _selectedDeliveryMethod == 1
+            ? "Cash on Delivery (COD)"
+            : "Cash at Counter",
+      },
     ];
 
     return Container(
       decoration: BoxDecoration(
         color: AppColors.warmPorcelain,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppColors.shadowLight,
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: Column(
-        children: List.generate(methods.length, (index) {
-          final m = methods[index];
-          final isSelected = _selectedPaymentMethod == index;
-          return InkWell(
-            onTap: () => setState(() => _selectedPaymentMethod = index),
-            borderRadius: BorderRadius.circular(20),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Icon(
-                    m["icon"] as IconData,
-                    color: isSelected
-                        ? AppColors.burntCaramel
-                        : AppColors.mutedTaupe,
-                    size: 22,
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      m["title"] as String,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: AppColors.deepEspresso,
+        children: [
+          ...List.generate(methods.length, (index) {
+            final m = methods[index];
+            final isSelected = _selectedPaymentMethod == index;
+            return InkWell(
+              onTap: () => setState(() => _selectedPaymentMethod = index),
+              borderRadius: BorderRadius.circular(20),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      m["icon"] as IconData,
+                      color: isSelected
+                          ? AppColors.burntCaramel
+                          : AppColors.mutedTaupe,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        m["title"] as String,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                          color: AppColors.deepEspresso,
+                        ),
                       ),
                     ),
+                    Icon(
+                      isSelected
+                          ? Icons.radio_button_checked_rounded
+                          : Icons.radio_button_off_rounded,
+                      color: isSelected
+                          ? AppColors.burntCaramel
+                          : AppColors.mutedTaupe,
+                      size: 20,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+
+          // Card input fields when Credit / Debit Card is selected
+          if (_selectedPaymentMethod == 1) ...[
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColors.borderLight,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildInputField(
+                    controller: _cardHolderController,
+                    label: "Cardholder Name",
+                    hintText: "e.g. John Doe",
+                    icon: Icons.person_outline_rounded,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                      LengthLimitingTextInputFormatter(30),
+                    ],
                   ),
-                  Icon(
-                    isSelected
-                        ? Icons.radio_button_checked_rounded
-                        : Icons.radio_button_off_rounded,
-                    color: isSelected
-                        ? AppColors.burntCaramel
-                        : AppColors.mutedTaupe,
-                    size: 20,
+                  const SizedBox(height: 12),
+                  _buildInputField(
+                    controller: _cardNumberController,
+                    label: "Card Number (16 digits)",
+                    hintText: "0000 0000 0000 0000",
+                    icon: Icons.credit_card_rounded,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[\d\s]')),
+                      _CardNumberFormatter(),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildInputField(
+                          controller: _expiryController,
+                          label: "Expiry Date",
+                          hintText: "MM/YY",
+                          icon: Icons.calendar_today_rounded,
+                          keyboardType: TextInputType.datetime,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'[\d/]')),
+                            _CardExpiryFormatter(),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildInputField(
+                          controller: _cvvController,
+                          label: "CVV / CVC (3 digits)",
+                          hintText: "•••",
+                          icon: Icons.lock_outline_rounded,
+                          keyboardType: TextInputType.number,
+                          obscureText: _obscureCvv,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureCvv
+                                  ? Icons.visibility_off_rounded
+                                  : Icons.visibility_rounded,
+                              size: 18,
+                              color: AppColors.mutedTaupe,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureCvv = !_obscureCvv;
+                              });
+                            },
+                          ),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(3),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          );
-        }),
+          ],
+        ],
       ),
     );
   }
@@ -597,11 +861,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       ? AppColors.burntCaramel
                       : AppColors.warmPorcelain,
                   borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: AppColors.shadowLight,
                       blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
@@ -632,11 +896,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       decoration: BoxDecoration(
         color: AppColors.warmPorcelain,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: AppColors.shadowLight,
             blurRadius: 12,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
@@ -718,6 +982,62 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Custom formatter to format card numbers as: XXXX XXXX XXXX XXXX (16 digits maximum)
+class _CardNumberFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (digitsOnly.length > 16) {
+      digitsOnly = digitsOnly.substring(0, 16);
+    }
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < digitsOnly.length; i++) {
+      if (i > 0 && i % 4 == 0) {
+        buffer.write(' ');
+      }
+      buffer.write(digitsOnly[i]);
+    }
+
+    final string = buffer.toString();
+    return TextEditingValue(
+      text: string,
+      selection: TextSelection.collapsed(offset: string.length),
+    );
+  }
+}
+
+/// Custom formatter to format expiry date as: MM/YY (4 digits maximum)
+class _CardExpiryFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (digitsOnly.length > 4) {
+      digitsOnly = digitsOnly.substring(0, 4);
+    }
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < digitsOnly.length; i++) {
+      if (i == 2) {
+        buffer.write('/');
+      }
+      buffer.write(digitsOnly[i]);
+    }
+
+    final string = buffer.toString();
+    return TextEditingValue(
+      text: string,
+      selection: TextSelection.collapsed(offset: string.length),
     );
   }
 }

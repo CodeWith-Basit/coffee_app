@@ -29,11 +29,11 @@ class CartItemCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: AppColors.shadowLight,
               blurRadius: 10,
-              offset: const Offset(0, 4),
+              offset: Offset(0, 4),
             ),
           ],
         ),
@@ -47,6 +47,7 @@ class CartItemCard extends StatelessWidget {
                 height: 74,
                 width: 74,
                 fit: BoxFit.cover,
+                cacheWidth: 250,
                 errorBuilder: (context, error, stackTrace) => Container(
                   height: 74,
                   width: 74,
@@ -141,7 +142,7 @@ class CartItemCard extends StatelessWidget {
                         onTap: onDecrement,
                         child: Container(
                           padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                             boxShadow: [

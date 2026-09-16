@@ -59,6 +59,25 @@ class Productcard extends StatelessWidget {
                     height: 135,
                     width: double.infinity,
                     fit: BoxFit.cover,
+                    cacheWidth: 500,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 135,
+                        width: double.infinity,
+                        color: AppColors.latteMist.withValues(alpha: 0.6),
+                        child: const Center(
+                          child: SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.burntCaramel,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                     errorBuilder: (context, error, stackTrace) => Container(
                       height: 135,
                       width: double.infinity,
