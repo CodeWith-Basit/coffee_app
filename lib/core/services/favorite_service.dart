@@ -1,8 +1,11 @@
+import 'package:coffee_appv2/core/services/firestore_service.dart';
 import 'package:coffee_appv2/models/favorite_item.dart';
 import 'package:flutter/foundation.dart';
 
 class FavoriteService {
-  FavoriteService._();
+  FavoriteService._() {
+    _initCloudListener();
+  }
   static final FavoriteService instance = FavoriteService._();
 
   /// ValueNotifier holding the current list of favorite items
@@ -10,6 +13,27 @@ class FavoriteService {
       ValueNotifier<List<FavoriteItem>>([]);
 
   List<FavoriteItem> get items => favoritesNotifier.value;
+
+  /// Listen to user's private favorites subcollection in Firestore
+  void _initCloudListener() {
+    FirestoreService.instance.getFavoritesStream()?.listen((snapshot) {
+      final cloudItems = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return FavoriteItem(
+          title: data['title'] as String? ?? doc.id,
+          imgurl: data['imgurl'] as String? ?? '',
+          subtitle: data['subtitle'] as String? ?? '',
+          price: data['price'] as String? ?? '0.00',
+        );
+      }).toList();
+      favoritesNotifier.value = cloudItems;
+    });
+  }
+
+  /// Reload favorites when user logs in
+  void reloadForCurrentUser() {
+    _initCloudListener();
+  }
 
   /// Check if an item is favorited by title
   bool isFavorite(String title) {
@@ -26,6 +50,14 @@ class FavoriteService {
   }) {
     final currentList = List<FavoriteItem>.from(favoritesNotifier.value);
     final existingIndex = currentList.indexWhere((item) => item.title == title);
+
+    // Sync to Firestore in user's isolated subcollection
+    FirestoreService.instance.toggleFavorite(
+      title: title,
+      imgurl: imgurl,
+      price: price,
+      subtitle: subtitle,
+    );
 
     if (existingIndex != -1) {
       currentList.removeAt(existingIndex);
@@ -51,5 +83,12 @@ class FavoriteService {
     final currentList = List<FavoriteItem>.from(favoritesNotifier.value);
     currentList.removeWhere((item) => item.title == title);
     favoritesNotifier.value = currentList;
+
+    FirestoreService.instance.toggleFavorite(
+      title: title,
+      imgurl: '',
+      price: '',
+      subtitle: '',
+    );
   }
 }

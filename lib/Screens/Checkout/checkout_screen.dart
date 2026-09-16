@@ -1,4 +1,5 @@
 import 'package:coffee_appv2/core/services/cart_service.dart';
+import 'package:coffee_appv2/core/services/firestore_service.dart';
 import 'package:coffee_appv2/core/themes/colors.dart';
 import 'package:coffee_appv2/models/cart_item.dart';
 import 'package:coffee_appv2/widget/bottom_nav_bar.dart';
@@ -136,13 +137,39 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
 
     setState(() => _isPlacingOrder = true);
-    await Future.delayed(const Duration(seconds: 2));
-    if (!mounted) return;
+    try {
+      final paymentMethodStr = _selectedPaymentMethod == 0
+          ? "Apple Pay"
+          : _selectedPaymentMethod == 1
+              ? "Credit/Debit Card"
+              : "Cash on Delivery";
 
-    CartService.instance.clearCart();
-    setState(() => _isPlacingOrder = false);
+      final addressStr = _selectedDeliveryMethod == 1
+          ? "${_addressController.text.trim()}, ${_cityController.text.trim()}"
+          : "Store Pickup: ${_pickupNoteController.text.trim().isNotEmpty ? _pickupNoteController.text.trim() : 'Flagship Store'}";
 
-    _showSuccessDialog();
+      // Save order into Firestore under /users/{uid}/orders/{orderId}
+      await FirestoreService.instance.saveOrder(
+        items: widget.items,
+        subtotal: widget.subtotal,
+        totalAmount: _total,
+        deliveryMethod: _selectedDeliveryMethod == 1 ? 'Delivery' : 'Store Pickup',
+        address: addressStr,
+        paymentMethod: paymentMethodStr,
+      );
+
+      if (!mounted) return;
+
+      CartService.instance.clearCart();
+      setState(() => _isPlacingOrder = false);
+
+      _showSuccessDialog();
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isPlacingOrder = false);
+        _showError("Could not place order. Please check your connection.");
+      }
+    }
   }
 
   void _showSuccessDialog() {

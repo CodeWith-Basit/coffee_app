@@ -1,3 +1,4 @@
+import 'package:coffee_appv2/core/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -25,9 +26,16 @@ class AuthService {
       password: password,
     );
 
-    if (credential.user != null && name.trim().isNotEmpty) {
-      await credential.user!.updateDisplayName(name.trim());
-      await credential.user!.reload();
+    if (credential.user != null) {
+      if (name.trim().isNotEmpty) {
+        await credential.user!.updateDisplayName(name.trim());
+        await credential.user!.reload();
+      }
+      // Save record in Firestore under /users/{uid}
+      await FirestoreService.instance.saveUserRecord(
+        credential.user!,
+        customName: name,
+      );
     }
 
     return credential;
@@ -38,10 +46,14 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    return await _auth.signInWithEmailAndPassword(
+    final cred = await _auth.signInWithEmailAndPassword(
       email: email.trim(),
       password: password,
     );
+    if (cred.user != null) {
+      await FirestoreService.instance.saveUserRecord(cred.user!);
+    }
+    return cred;
   }
 
   /// Sign In with Google
@@ -58,7 +70,12 @@ class AuthService {
         idToken: googleAuth.idToken,
       );
 
-      return await _auth.signInWithCredential(credential);
+      final userCred = await _auth.signInWithCredential(credential);
+      if (userCred.user != null) {
+        // Save Google user record in Firestore under /users/{uid}
+        await FirestoreService.instance.saveUserRecord(userCred.user!);
+      }
+      return userCred;
     } catch (e) {
       rethrow;
     }
@@ -66,10 +83,7 @@ class AuthService {
 
   /// Sign Out
   Future<void> signOut() async {
-    await Future.wait([
-      _auth.signOut(),
-      _googleSignIn.signOut(),
-    ]);
+    await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
   }
 
   /// Send password reset email
